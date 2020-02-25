@@ -45,24 +45,24 @@ public:
 	}
 
 	template <typename TagType, typename ValueType>
-	ValueType Value(Name<TagType, ValueType>) const
+	ValueType Get(Name<TagType, ValueType>) const
 	{
 		static_assert(
 		    details::Contains_v<Argument<TagType, ValueType>, Ts...>,
 		    "Attempted to get the value of a not given keyword argument.  This "
 		    "should be prevented by using keyword::Arguments::Get(name) only "
-		    "in a "
-		    "constexpr if block based on the value of "
+		    "in a constexpr if block based on the value of "
 		    "keyword::Arguments::Has(name).");
 		return std::get<Argument<TagType, ValueType>>(_values).value;
 	}
 
 	template <typename TagType, typename ValueType>
-	ValueType ValueOr(Name<TagType, ValueType> name, ValueType default_) const
+	ValueType
+	GetOrDefault(Name<TagType, ValueType> name, ValueType default_) const
 	{
 		if constexpr(details::Contains_v<Argument<TagType, ValueType>, Ts...>)
 		{
-			return Value(name);
+			return Get(name);
 		}
 		else
 		{

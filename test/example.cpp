@@ -37,10 +37,10 @@ template <typename... Kwargs> Data MakeData(std::string first, Kwargs... values)
 	Data data{first, "bad"};
 	keyword::Names names{kw::second, kw::third};
 	keyword::Arguments kwargs{names, values...};
-	data.second = kwargs.ValueOr(kw::second, {});
+	data.second = kwargs.GetOrDefault(kw::second, {});
 	if constexpr(kwargs.Contains(kw::third))
 	{
-		data.third = kwargs.Value(kw::third);
+		data.third = kwargs.Get(kw::third);
 	}
 	return data;
 }
