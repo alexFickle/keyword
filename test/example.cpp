@@ -34,34 +34,61 @@ keyword::Name<third_tag, std::string> third;
 
 template <typename... Kwargs> Data MakeData(std::string first, Kwargs... values)
 {
-	Data data{first};
+	Data data{first, "bad"};
 	keyword::Names names{kw::second, kw::third};
 	keyword::Arguments kwargs{names, values...};
-	if constexpr(kwargs.Has(kw::second))
+	data.second = kwargs.ValueOr(kw::second, {});
+	if constexpr(kwargs.Contains(kw::third))
 	{
-		data.second = kwargs.Get(kw::second);
-	}
-	if constexpr(kwargs.Has(kw::third))
-	{
-		data.third = kwargs.Get(kw::third);
+		data.third = kwargs.Value(kw::third);
 	}
 	return data;
 }
 
 
-TEST(example, test)
+TEST(example, none)
 {
 	using namespace kw;
-	Data data;
-	data = MakeData("1", second = "2", third = "3");
+	Data data = MakeData("1");
+	ASSERT_EQ(data.first, "1");
+	ASSERT_TRUE(data.second.empty());
+	ASSERT_TRUE(data.third.empty());
+}
+
+TEST(example, second)
+{
+	using namespace kw;
+	Data data = MakeData("1", second = "2");
+	ASSERT_EQ(data.first, "1");
+	ASSERT_EQ(data.second, "2");
+	ASSERT_TRUE(data.third.empty());
+}
+
+TEST(example, third)
+{
+	using namespace kw;
+	Data data = MakeData("1", third = "3");
+	ASSERT_EQ(data.first, "1");
+	ASSERT_TRUE(data.second.empty());
+	ASSERT_EQ(data.third, "3");
+}
+
+TEST(example, both)
+{
+	using namespace kw;
+	Data data = MakeData("1", second = "2", third = "3");
 	ASSERT_EQ(data.first, "1");
 	ASSERT_EQ(data.second, "2");
 	ASSERT_EQ(data.third, "3");
+}
 
-	data = MakeData("foo", third = "bar");
-	ASSERT_EQ(data.first, "foo");
-	ASSERT_TRUE(data.second.empty());
-	ASSERT_EQ(data.third, "bar");
+TEST(example, backwards)
+{
+	using namespace kw;
+	Data data = MakeData("1", third = "3", second = "2");
+	ASSERT_EQ(data.first, "1");
+	ASSERT_EQ(data.second, "2");
+	ASSERT_EQ(data.third, "3");
 }
 
 

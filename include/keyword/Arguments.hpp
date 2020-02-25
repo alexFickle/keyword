@@ -39,13 +39,13 @@ public:
 	{}
 
 	template <typename TagType, typename ValueType>
-	constexpr bool Has(Name<TagType, ValueType>) const noexcept
+	constexpr bool Contains(Name<TagType, ValueType>) const noexcept
 	{
 		return details::Contains_v<Argument<TagType, ValueType>, Ts...>;
 	}
 
 	template <typename TagType, typename ValueType>
-	ValueType Get(Name<TagType, ValueType> name) const
+	ValueType Value(Name<TagType, ValueType>) const
 	{
 		static_assert(
 		    details::Contains_v<Argument<TagType, ValueType>, Ts...>,
@@ -55,6 +55,19 @@ public:
 		    "constexpr if block based on the value of "
 		    "keyword::Arguments::Has(name).");
 		return std::get<Argument<TagType, ValueType>>(_values).value;
+	}
+
+	template <typename TagType, typename ValueType>
+	ValueType ValueOr(Name<TagType, ValueType> name, ValueType default_) const
+	{
+		if constexpr(details::Contains_v<Argument<TagType, ValueType>, Ts...>)
+		{
+			return Value(name);
+		}
+		else
+		{
+			return default_;
+		}
 	}
 
 private:
